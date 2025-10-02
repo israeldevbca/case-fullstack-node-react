@@ -1,0 +1,23 @@
+services:
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: planner
+      POSTGRES_PASSWORD: planner
+      POSTGRES_DB: planner
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://planner:planner@db:5432/planner?schema=public
+      PORT: 3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+    command: sh -c "npx prisma db push && node dist/server.js"
+volumes:
+  db_data:
